@@ -1,0 +1,69 @@
+from datetime import datetime
+from typing import Union, Optional, ClassVar
+from models import DataHiveBaseModel
+from pydantic import HttpUrl, field_validator
+import base64
+
+
+class Media(DataHiveBaseModel):
+    VALID_MEDIA_TYPES: ClassVar[list[str]] = ['image', 'video', 'model', 'text', 'paper', 'news', 'prompt',
+                                              'website', 'pdf']
+
+    media_url: Optional[HttpUrl] = None
+    media_b64_content: Optional[str] = None
+    media_type: str
+    title: Optional[str] = None
+    description: Optional[str] = None
+    likes: int = 0
+    hearts: int = 0
+    prompt: Optional[str] = None
+    model: Optional[str] = None
+    author: Optional[str] = None
+    tags: Optional[str] = None
+    source: Optional[str] = None
+    reference_url: Optional[HttpUrl] = None
+    media_reference: Optional[Union['Media', str]] = None
+    media_created_at: Union[datetime, str]
+
+    class Config:
+        json_encoders = {
+            HttpUrl: lambda v: str(v),
+            datetime: lambda v: v.isoformat(),
+        }
+
+    @field_validator('media_b64_content')
+    def check_base64_content(cls, v: str) -> str:
+        try:
+            base64.b64decode(v)
+            return v
+        except ValueError:
+            raise ValueError('media_b64_content must be base64 encoded')
+
+    @field_validator('media_type')
+    def check_media_type(cls, v: str) -> str:
+        if v not in Media.VALID_MEDIA_TYPES:
+            raise ValueError('media_type must be one of image, audio, video')
+        return v
+
+    @field_validator('title', 'description', 'prompt', 'model', 'author', mode='after')
+    def check_strings(cls, v: str) -> str:
+        if not isinstance(v, str):
+            raise ValueError('Field must be a string')
+        return v
+
+    @field_validator('likes', 'hearts', mode='after')
+    def check_integers(cls, v: int) -> int:
+        if not isinstance(v, int):
+            raise ValueError('Field must be an integer')
+        return v
+
+    @field_validator('media_created_at', mode='before')
+    def parse_image_created_at(cls, v: Union[datetime, str]) -> datetime:
+        if isinstance(v, str):
+            try:
+                return datetime.fromisoformat(v)
+            except ValueError:
+                raise ValueError('image_created_at must be a valid datetime string or a datetime object')
+        elif not isinstance(v, datetime):
+            raise ValueError('image_created_at must be a datetime object')
+        return v
