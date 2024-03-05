@@ -1,5 +1,6 @@
 python-dotenv
 pydantic
+inflect
 
 # Scraping
 requests
@@ -18,3 +19,6 @@ feedparser
 
 # Zotero Collector
 pyzotero
+
+# Telegram Publisher
+python-telegram-bot[ext]

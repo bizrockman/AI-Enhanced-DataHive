@@ -4,6 +4,9 @@
 
 AI Enhanced DataHive embarks on a mission to become a centralized hub for data of various kinds, offering templates for collectors to aggregate data centrally for further processing in other applications. This initiative arises from the repeated cycles of developing crawlers, extractors, and collectors across numerous projects. Developers often reimplement or reuse functions throughout their codebase, leading to inefficient data handling practices like multiple downloads of the same data or the constant need to create new platforms for data storage.
 
+It used a classical ETL approach to collect data from various sources, transform it into unified formats and load them to be published by some sort of publisher.
+Every steps is separat, so that you can easily replace the collector, transformer or publisher with your own implementation.
+
 By providing a unified solution, AI Enhanced DataHive aims to simplify the development of numerous projects, for instance, those based on research reports from Arxiv, by making centrally available data readily accessible.
 
 ## Why AI Enhanced DataHive?
@@ -23,10 +26,19 @@ Designed initially for AI news, the framework's flexibility through additional c
 - **Github**: Collects trending repositories from Github.
 - **Zotero**: Collects entries of collection from a private Zotero library.
 
+## Transformer Implementations
+
+- **TopDailyImage**: Transforms CivitAI images into a daily top image Content piece.
+
+## Publisher Implementations
+
+- **Telegram**: A loader transforms content pieces into telegram messages that are published into a group by a bot.
+
 ## Prerequisites
 Python 3.10 or higher\
 Supabase Account (or implement the BaseDAO to use another storage solution)\
-Zotero Account (if you like to use the Zotero Collector)
+Zotero Account (if you like to use the Zotero Collector)\
+Telegram Group (with Topics) and a Bot (if you like to use the Telegram Publisher)
 
 ## Getting Started
 
