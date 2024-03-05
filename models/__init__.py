@@ -1,3 +1,2 @@
-from .base import DataHiveBaseModel
-from .media import Media
-from .github_project import GithubProject
+from .content_base_model import ContentBaseModel
+from .base_model import DataHiveBaseModel
