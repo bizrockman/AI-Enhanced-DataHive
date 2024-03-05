@@ -1,10 +1,10 @@
-from models import DataHiveBaseModel
+from models import ContentBaseModel
 
 from typing import Optional, ClassVar
 from pydantic import HttpUrl, Field, field_validator
 
 
-class GithubProject(DataHiveBaseModel):
+class GithubProject(ContentBaseModel):
     VALID_PERIODICITY: ClassVar[list[str]] = ['daily', 'weekly', 'monthly']
 
     username: str = Field(..., max_length=255)
@@ -17,7 +17,6 @@ class GithubProject(DataHiveBaseModel):
     new_stars: Optional[int] = None
     since: str = Field(..., max_length=50)
     contributors: Optional[str] = None
-    tags: Optional[str] = None
 
     class Config:
         json_encoders = {

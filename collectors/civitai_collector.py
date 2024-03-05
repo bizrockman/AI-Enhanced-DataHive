@@ -5,11 +5,10 @@ from urllib.parse import urlencode, urljoin
 from collectors import BaseCollector
 from collectors.utils.scraping_helper import get_request_as_json
 
-from models import Media
+from collectors.models import Media
 
 
 class CivitaiCollector(BaseCollector):
-
     VALID_PERIODS = ['AllTime', 'Year', 'Month', 'Week', 'Day']
     VALID_MEDIA_TYPES = ['image', 'video', 'model']
     VALID_NSFW_LEVELS = [None, 'Soft', 'Mature', 'X']
@@ -37,7 +36,7 @@ class CivitaiCollector(BaseCollector):
         base_url = os.getenv('CIVITAI_API_URL', '')
         self.civitai_url = self.build_url(base_url, media_type, sort, nsfw, period, limit)
 
-        super().__init__(creator_name=self.creator_name, content_type=media_type, tags=tags)
+        super().__init__(creator_name=self.creator_name, content_type=Media)
 
     def build_tags(self, media_type, period, sort, nsfw):
         tags = 'civitai, '
@@ -73,7 +72,7 @@ class CivitaiCollector(BaseCollector):
     def build_url(self, base_url, media_type, sort, nsfw, period, limit):
         path = f"{media_type}s"  # Append 's' to make it plural (image -> images, video -> videos, model -> models)
         params = {
-            'nsfw': nsfw,
+            'nsfw': nsfw if nsfw is not None else 'None',
             'limit': limit,
             'period': period,
             'sort': sort
@@ -83,43 +82,44 @@ class CivitaiCollector(BaseCollector):
 
     def retrieve(self):
         data = get_request_as_json(self.civitai_url)
-
         if isinstance(data, dict):
-            return data
+            media = self.convert_to_media(data)
+            return media
         else:
             # Fehlerbehandlung
             print(f"Es gab einen Fehler bei der Anfrage: {data}")
 
     def convert_to_media(self, data):
-        data = data['items'][0]
-
+        result = []
         if data:
-            media = Media(
-                creator=self.creator_name,
-                media_url=data['url'],
-                media_type=self.media_type,
-                likes=data['stats']['likeCount'],
-                hearts=data['stats']['heartCount'],
-                prompt= data['meta']['prompt'],
-                model=data['meta']['Model'].split('.')[0],
-                author=data['username'],
-                tags=self.tags,
-                source='Civitai',
-                media_created_at=data['createdAt']
-            )
-
-            return media
+            for item in data['items']:
+                media = Media(
+                    creator=self.creator_name,
+                    media_url=item['url'],
+                    media_type=self.media_type,
+                    likes=item['stats']['likeCount'],
+                    hearts=item['stats']['heartCount'],
+                    prompt=item['meta'].get('prompt') if item.get('meta') is not None else None,
+                    model=item['meta'].get('Model').split('.')[0] if item.get('meta') is not None and
+                                                                     item['meta'].get('Model') is not None else None,
+                    author=item['username'],
+                    tags=self.tags,
+                    source='Civitai',
+                    media_created_at=item['createdAt']
+                )
+                result.append(media)
+        return result
 
 
 def main():
     load_dotenv()
-    civitai_collector = CivitaiCollector(nsfw='X')
-    #result = civitai_collector.save()
-    data = civitai_collector.retrieve()
-    print(data)
-    media = civitai_collector.convert_to_media(data)
 
-    print(media)
+    civitai_image_loader = CivitaiCollector(creator_name='CivitAIDailyTopImage', media_type='image', period='Day',
+                                            nsfw=None, limit=3)
+    civitai_image_loader.run()
+    civitai_hot_image_loader = CivitaiCollector(creator_name='CivitAIDailyTopHotImage', media_type='image',
+                                                period='Day', nsfw='Mature', limit=3)
+    civitai_hot_image_loader.run()
 
 
 if __name__ == "__main__":
