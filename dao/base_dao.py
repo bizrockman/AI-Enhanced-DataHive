@@ -1,15 +1,18 @@
-from typing import Type, Union
+from typing import Any, Union, Type, List, Tuple
 from datetime import datetime
 
 from models import DataHiveBaseModel
+
+#TODO get rid of Any - it is str or List with another str elements.
+Filter = Union[Tuple[str, Any], Tuple[str, Any, Any], Tuple[str, Any, Any, Any], List[Any]]
 
 
 class BaseDAO:
     def create(self, entity: DataHiveBaseModel) -> DataHiveBaseModel:
         raise NotImplementedError
 
-    def read(self, entity: Type[DataHiveBaseModel], filters=None, limit=None, order_by=None, order_dir='asc') -> (
-            Union)[Type[DataHiveBaseModel], list[Type[DataHiveBaseModel]]]:
+    def read(self, entity: Type[DataHiveBaseModel], filters: Filter = None, limit=None, order_by=None,
+             order_dir='asc') -> Union[Type[DataHiveBaseModel], list[Type[DataHiveBaseModel]]]:
         raise NotImplementedError
 
     def update(self, entity: DataHiveBaseModel, id=None) -> DataHiveBaseModel:
