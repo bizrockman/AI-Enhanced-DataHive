@@ -162,7 +162,11 @@ class SupabaseDAO(BaseDAO):
                     return [f"{field}=gte.{start_value}", f"{field}=lte.{end_value}"]
 
         for filter in filters:
-            query_filters.append(process_filter(filter))
+            result = process_filter(filter)
+            if isinstance(result, list):
+                query_filters.extend(result)
+            else:
+                query_filters.append(result)
 
         return query_filters
 
