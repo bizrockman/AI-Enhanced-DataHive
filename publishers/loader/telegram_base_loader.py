@@ -1,12 +1,9 @@
-from transformers.models import Content
-
-from utils.datetime_helper import today_as_start_and_enddate_str
-
 from publishers.models import TelegramMessage, TelegramGroup, TelegramGroupTopic
 
+from transformers.models import Content
 
-class TopDailyImageLoader:
 
+class TelegramBaseLoader:
     def __init__(self, telegram_group_name, telegram_group_topic_id):
         from dao.dao_factory import dao_factory
         self.dao = dao_factory()
@@ -19,15 +16,7 @@ class TopDailyImageLoader:
         self.telegram_group_topic_id = telegram_group_topic_id
 
     def retrieve(self):
-        start_date_str, end_date_str = today_as_start_and_enddate_str()
-        filters = [
-            ["creator", "TopDailyImage"],
-            ["language", "de"],
-            ["created_at", "between", start_date_str, end_date_str]
-        ]
-
-        topimage = self.dao.read(Content, filters, limit=1)
-        return topimage[0]
+        raise NotImplementedError
 
     def find_group_topic_uuid(self):
         filters = [
@@ -72,14 +61,3 @@ class TopDailyImageLoader:
     def load(self):
         content = self.retrieve()
         self.save_content_as_telegram_message(content)
-
-
-def main():
-    from dotenv import load_dotenv
-    load_dotenv()
-    loader = TopDailyImageLoader('KI & Business', 27)
-    loader.load()
-
-
-if __name__ == '__main__':
-    main()
