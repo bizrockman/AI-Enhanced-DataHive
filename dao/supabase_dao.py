@@ -5,14 +5,12 @@ import inflect
 from datetime import datetime
 from typing import Annotated, Any, get_origin, get_args, Union, Type, List, Tuple
 
-from dao import BaseDAO
+from dao import BaseDAO, T, Filter
 from models import DataHiveBaseModel
 from transformers.models import Content
 from supabase import create_client, Client
 
 from pydantic_core import Url
-
-Filter = Union[Tuple[str, Any], Tuple[str, Any, Any], Tuple[str, Any, Any, Any], List[Any]]
 
 
 class SupabaseDAO(BaseDAO):
@@ -23,7 +21,7 @@ class SupabaseDAO(BaseDAO):
 
         self.supabase_client: Client = create_client(supabase_url, supabase_api_key)
 
-    def create(self, entity: DataHiveBaseModel) -> DataHiveBaseModel:
+    def create(self, entity: T) -> T:
         table_name = self.table_name_from_model(type(entity))
         row_data = self._model_instance_to_row(entity)
         del row_data['id']
@@ -31,8 +29,8 @@ class SupabaseDAO(BaseDAO):
         data = response.data
         return self._row_to_model_instance(data[0], type(entity))
 
-    def read(self, entity: Type[DataHiveBaseModel], filters=None, limit=None, order_by=None, order_dir='asc') -> (
-            Union)[Type[DataHiveBaseModel], list[Type[DataHiveBaseModel]]]:
+    def read(self, entity: Type[T], filters=None, limit=None, order_by=None, order_dir='asc') -> (
+            Union)[Type[T], list[Type[T]]]:
         table_name = self.table_name_from_model(entity)
         result = self.supabase_client.table(table_name).select("*")
 
@@ -60,7 +58,7 @@ class SupabaseDAO(BaseDAO):
 
         return [self._row_to_model_instance(row, entity) for row in result.execute().data]
 
-    def update(self, entity: DataHiveBaseModel, id=None):
+    def update(self, entity: T, id=None):
         table_name = self.table_name_from_model(type(entity))
         row_data = self._model_instance_to_row(entity)
         if id is None:
@@ -68,7 +66,7 @@ class SupabaseDAO(BaseDAO):
 
         self.supabase_client.table(table_name).update(row_data).eq('id', id).execute()
 
-    def delete(self, entity: DataHiveBaseModel, id=None):
+    def delete(self, entity: T, id=None):
         # Implementiere die Methode unter Verwendung von Supabase
         pass
 
@@ -109,7 +107,7 @@ class SupabaseDAO(BaseDAO):
             # Ergänzen Sie hier Konvertierungen für weitere spezielle Typen
         return value
 
-    def _row_to_model_instance(self, row: dict, model: Type[DataHiveBaseModel]) -> DataHiveBaseModel:
+    def _row_to_model_instance(self, row: dict, model: Type[T]) -> T:
         init_values = {}
         for field_name, field_info in model.__fields__.items():
             field_value = row.get(field_name)
@@ -118,7 +116,7 @@ class SupabaseDAO(BaseDAO):
             init_values[field_name] = converted_value
         return model(**init_values)
 
-    def _model_instance_to_row(self, model_instance: DataHiveBaseModel) -> dict:
+    def _model_instance_to_row(self, model_instance: T) -> dict:
         row_data = {}
         for field_name, field_info in model_instance.__fields__.items():
             value = getattr(model_instance, field_name, None)
@@ -126,7 +124,7 @@ class SupabaseDAO(BaseDAO):
             row_data[field_name] = self.convert_model_to_row_value(field_type, value)
         return row_data
 
-    def table_name_from_model(self, model: Type[DataHiveBaseModel]) -> str:
+    def table_name_from_model(self, model: Type[T]) -> str:
         inflect.def_classical["names"] = False
         p = inflect.engine()
         model_name = model.__name__
