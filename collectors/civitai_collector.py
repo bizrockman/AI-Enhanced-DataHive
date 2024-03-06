@@ -4,6 +4,7 @@ from urllib.parse import urlencode, urljoin
 
 from collectors import BaseCollector
 from collectors.utils.scraping_helper import get_request_as_json
+from utils.datetime_helper import to_periodic_format
 
 from collectors.models import Media
 
@@ -41,18 +42,9 @@ class CivitaiCollector(BaseCollector):
     def build_tags(self, media_type, period, sort, nsfw):
         tags = 'civitai, '
         tags += media_type.lower() + ', '
-        if period == 'Day':
-            tags += 'daily, '
-        elif period == 'Week':
-            tags += 'weekly, '
-        elif period == 'Month':
-            tags += 'monthly, '
-        elif period == 'Year':
-            tags += 'yearly, '
-        elif period == 'AllTime':
-            tags += 'all time, '
-
+        tags += to_periodic_format(period) + ', '
         tags += sort.lower() + ', '
+
         if nsfw:
             tags += nsfw.lower() + ', '
 
