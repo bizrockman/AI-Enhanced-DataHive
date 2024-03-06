@@ -1,11 +1,14 @@
 import os
+from typing import List
 
 from dotenv import load_dotenv
 from datetime import datetime, timezone
 
-from models import Media
 from collectors import BaseCollector
 import collectors.utils.arxiv_helper as ah
+
+from utils.datetime_helper import to_periodic_format
+from collectors.models import ResearchPaper
 
 
 class ArxivCollector(BaseCollector):
@@ -13,77 +16,82 @@ class ArxivCollector(BaseCollector):
     VALID_PERIODS = ['Day']
 
     def __init__(self, creator_name='ArxivCollector', arxiv_category='cs.AI', period='Day', tags=None, limit=3):
+        self.validate_parameters(arxiv_category, period)
+
         self.creator_name = creator_name
         self.limit = limit
         self.arxiv_category = arxiv_category
         self.period = period
-        self.media_type = 'paper'
 
         if tags is None:
             self.tags = self.build_tags(arxiv_category, period)
         else:
             self.tags = tags
 
-        self.validate_parameters(arxiv_category, period)
+        super().__init__(creator_name=self.creator_name, content_type=ResearchPaper)
 
-        super().__init__(self.creator_name, content_type=self.media_type)
-
-    def validate_parameters(self, arxiv_category, period):
+    def validate_parameters(self, arxiv_category, period) -> None:
         if arxiv_category not in ah.ALL_CATEGORIES:
             raise ValueError(f"category must be one of {ah.ALL_CATEGORIES}")
         if period not in self.VALID_PERIODS:
             raise ValueError(f"period must be one of {self.VALID_PERIODS}")
 
-    def build_tags(self, arxiv_category, period):
+    def build_tags(self, arxiv_category, period) -> str:
         tags = 'arxiv, '
         tags += arxiv_category.lower() + ', '
-        if period == 'Day':
-            tags += 'daily, '
+        tags += to_periodic_format(period) + ', '
 
         tags = tags.rstrip(', ')
         return tags
 
-    def retrieve(self):
+    def retrieve(self) -> List[ResearchPaper]:
         entries = ah.do_today_search(self.arxiv_category, self.limit)
-        return entries
+        papers = self.convert_to_research_paper_entity(entries)
+        return papers
 
-    def convert_to_media(self, data):
+    def convert_to_research_paper_entity(self, data) -> List[ResearchPaper]:
+        result = []
         if data:
-            if 'Remaining Information' in data['title']:
-                media = Media(
-                    creator=self.creator_name,
-                    media_type=self.media_type,
-                    title=data['title'],
-                    description=data['description'],
-                    tags=self.tags + ', count',
-                    source='Arxiv',
-                    media_created_at=datetime.now(timezone.utc),
-                    # TODO rework function call
-                    reference_url=ah.search_day_submissions(self.arxiv_category, os.getenv('ARXIV_RSS_LINK'))
-                )
-            else:
-                now = datetime.now(timezone.utc)
-                media = Media(
-                    creator=self.creator_name,
-                    media_type=self.media_type,
-                    title=data['title'],
-                    description=data['description'],
-                    author=data['authors'],
-                    tags=self.tags,
-                    source='Arxiv',
-                    media_created_at=now,
-                    reference_url=data['link']
-                )
-
-            return media
+            for item in data:
+                if 'Remaining Information' in item['title']:
+                    # TODO make here a news item??
+                    #paper = ResearchPaper(
+                    #    creator=self.creator_name,
+                    #    title=item['title'],
+                    #    description=item['description'],
+                    #    tags=self.tags + ', count',
+                    #    authors=self.creator_name,
+                    #    source='Arxiv',
+                        # TODO rework function call
+                    #    reference_url=ah.search_day_submissions(self.arxiv_category, os.getenv('ARXIV_RSS_LINK'))
+                    #)
+                    pass
+                else:
+                    now = datetime.now(timezone.utc)
+                    paper = ResearchPaper(
+                        title=item['title'],
+                        abstract=item['description'],
+                        source_id=item['guid'],
+                        authors=item['authors'],
+                        license=item['rights'],
+                        source='Arxiv',
+                        creator=self.creator_name,
+                        tags=self.tags,
+                        paper_submitted_at=now,
+                        paper_url=item['link'],
+                        # TODO rework function call
+                        reference_url=ah.search_day_submissions(self.arxiv_category, os.getenv('ARXIV_RSS_LINK'))
+                    )
+                    result.append(paper)
+        return result
 
 
 def main():
     load_dotenv()
     arxiv_collector = ArxivCollector()
-    data = arxiv_collector.retrieve()
-    result = arxiv_collector.save(data)
-    print(result)
+    data = arxiv_collector.run()
+    #result = arxiv_collector.save(data)
+    print(data)
     #media = civitai_collector.convert_to_media(data)
 
     #print(media)
