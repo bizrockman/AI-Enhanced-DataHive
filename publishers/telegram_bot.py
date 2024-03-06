@@ -84,9 +84,13 @@ async def send_message(dao: BaseDAO, context: CallbackContext, chat_id: str, mes
 
     message_object = None
     if message.media_type in media_methods and media:
-        if content and len(content) > max_caption_length:
-            caption = content[:max_caption_length]
-            rest_content = content[max_caption_length:]
+        if content:
+            if len(content) > max_caption_length:
+                caption = content[:max_caption_length]
+                rest_content = content[max_caption_length:]
+            else:
+                caption = content
+                rest_content = None
         else:
             caption = None
             rest_content = None
@@ -96,12 +100,13 @@ async def send_message(dao: BaseDAO, context: CallbackContext, chat_id: str, mes
         media_args = {'caption': caption} if content else {}
         media_args.update(base_args)
         await send_method(photo=media if message.media_type == 'image' else media, **media_args)
-        for part in split_content(rest_content, max_message_length):
-            await context.bot.send_message(text=part, **base_args)
+        if rest_content:
+            for part in split_content(rest_content, max_message_length):
+                await context.bot.send_message(text=part, **base_args)
     elif content:
         # Senden einer Textnachricht, falls kein Medieninhalt vorhanden oder erforderlich ist
         for part in split_content(content, max_message_length):
-            await context.bot.send_message(text=content, **base_args)
+            await context.bot.send_message(text=part, **base_args)
     else:
         # Für den Fall, dass weder Inhalt noch Medien vorhanden sind (kann erweitert werden, falls nötig)
         print("Kein Inhalt oder Medien zum Senden vorhanden.")
