@@ -112,6 +112,8 @@ def review_response(dictionary, max_number_authors, feed_type):
                 continue
             element = {'title': prepare_title_field_RSS(entry),
                        'authors': prepare_authors_field_RSS(entry, max_number_authors),
+                       'id': is_field_there(entry, 'id'),
+                       'rights': is_field_there(entry, 'rights'),
                        'description': is_field_there(entry, 'description')}
         else:
             raise ValueError('Wrong feed type. It can only be API or RSS.')
@@ -614,7 +616,9 @@ def send_results_back_rss(search_list, remaining_results, arxiv_category, feed_d
             'authors': result['authors'],
             'description': description,
             'date': now.strftime("%d.%m.%Y"),
-            'link': result['link']
+            'link': result['link'],
+            'guid': result['id'],
+            'rights': result['rights']
         }
 
         message_result.append(new_item)
