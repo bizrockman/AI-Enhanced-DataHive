@@ -10,9 +10,11 @@ from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 
 
 def civitai_top_image_of_the_day_collector_job():
-    civitai_image_loader = CivitaiCollector(media_type='image', period='Day', nsfw=None, limit=3)
+    civitai_image_loader = CivitaiCollector(creator_name='CivitAIDailyTopImage', media_type='image', period='Day',
+                                            nsfw=None, limit=3)
     civitai_image_loader.run()
-    civitai_hot_image_loader = CivitaiCollector(media_type='image', period='Day', nsfw='Soft', limit=3)
+    civitai_hot_image_loader = CivitaiCollector(creator_name='CivitAIDailyTopHotImage', media_type='image',
+                                                period='Day', nsfw='Mature', limit=3)
     civitai_hot_image_loader.run()
 
 

@@ -22,3 +22,6 @@ pyzotero
 
 # Telegram Publisher
 python-telegram-bot[ext]
+
+# OpenAI Service
+openai
