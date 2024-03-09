@@ -16,8 +16,12 @@ class TelegramDailyTrendingGithubProjectsLoader(TelegramBaseLoader):
             ["created_at", "between", start_date_str, end_date_str]
         ]
 
-        projects = self.dao.read(Content, filters, limit=1)
-        return projects[0]
+        projects = self.dao.read(Content, filters, limit=3)
+
+        for project in projects:
+            project.title = 'Aktuelle GitHub-Trends'
+
+        return projects
 
 
 def main():

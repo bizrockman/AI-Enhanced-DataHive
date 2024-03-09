@@ -1,3 +1,5 @@
+from typing import Union, List
+
 from publishers.models import TelegramMessage, TelegramGroup, TelegramGroupTopic
 
 from transformers.models import Content
@@ -30,16 +32,22 @@ class TelegramBaseLoader:
         else:
             return None
 
-    def save_content_as_telegram_message(self, content: Content):
+    def save_content_as_telegram_message(self, content: Union[Content, List[Content]]):
         group_topic_uuid = self.find_group_topic_uuid()
         if not group_topic_uuid:
             print("Keine entsprechende group_topic_id gefunden.")
             return
 
+        if isinstance(content, list):
+            str_content = '\n\n'.join([c.content for c in content])
+            content = content[0]
+        else:
+            str_content = content.content
+
         # Datenstruktur für die neue Nachricht
         message_data = {
             'telegram_group_topic_fk': group_topic_uuid,
-            'content': f"<b>{content.title}</b>\n{content.content}",
+            'content': f"<b>{content.title}</b>\n{str_content}",
             'creator': content.creator,
             'status': 'planned'
         }
