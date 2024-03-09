@@ -7,7 +7,7 @@ from collectors.utils.allowed_github_parameter import AllowedDateRanges
 from collectors.utils.scraping_helper import get_request
 from collectors.utils.github_helper import filter_articles, make_soup, scraping_repositories
 
-from models import GithubProject
+from collectors.models import GithubProject
 
 from utils import datetime_helper as dh
 
@@ -31,7 +31,7 @@ class GithubCollector(BaseCollector):
 
         self.validate_parameters(period)
 
-        super().__init__(self.creator_name, content_type=self.media_type, table_name='t_github_projects')
+        super().__init__(creator_name=self.creator_name, content_type=GithubProject)
 
     def validate_parameters(self, period):
         if period not in self.VALID_PERIODS:
@@ -54,7 +54,6 @@ class GithubCollector(BaseCollector):
             payload = {"since": "weekly"}
 
         raw_html = get_request(self.github_url, payload)
-
         articles_html = filter_articles(raw_html)
         soup = make_soup(articles_html)
         return scraping_repositories(soup, since=payload[
@@ -63,35 +62,40 @@ class GithubCollector(BaseCollector):
     def retrieve(self):
         periodicity = dh.to_periodic_format(self.period)
         entries = self.trending_repositories(since=periodicity)
-        return entries[:self.limit]
+        projects = self.convert_to_github_project_entities(entries)
+        return projects[:self.limit]
 
-    def convert_to_media(self, data):
+    def convert_to_github_project_entities(self, data):
+        result = []
         if data:
-            contributors = [user['username'] for user in data['builtBy']]
+            for item in data:
 
-            # Format output
-            if len(contributors) > 3:
-                output = ', '.join(contributors[:3]) + ', et al.'
-            else:
-                output = ', '.join(contributors)
+                contributors = [user['username'] for user in item['builtBy']]
 
-            project = GithubProject(
-                creator=self.creator_name,
-                username=data['username'],
-                name=data['repositoryName'],
-                url=data['url'],
-                description=data['description'],
-                program_language=data['language'],
-                language=data['language'],
-                total_stars=data['totalStars'],
-                forks=data['forks'],
-                new_stars=data['starsSince'],
-                since=data['since'],
-                tags=self.tags,
-                contributors=output
-            )
+                # Format output
+                if len(contributors) > 3:
+                    output = ', '.join(contributors[:3]) + ', et al.'
+                else:
+                    output = ', '.join(contributors)
 
-            return project
+                project = GithubProject(
+                    creator=self.creator_name,
+                    username=item['username'],
+                    name=item['repositoryName'],
+                    url=item['url'],
+                    description=item['description'],
+                    program_language=item['language'],
+                    language=item['language'],
+                    total_stars=item['totalStars'],
+                    forks=item['forks'],
+                    new_stars=item['starsSince'],
+                    since=item['since'],
+                    tags=self.tags,
+                    source='GitHub Trending',
+                    contributors=output
+                )
+                result.append(project)
+        return result
 
 
 def main():
