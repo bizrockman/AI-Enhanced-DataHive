@@ -7,7 +7,7 @@ from utils.text_helper import escape_html
 from transformers.models import Content
 
 
-class BaseTransformer:
+class BaseContentTransformer:
     def __init__(self, creator_name, template_file_name, language):
         from dao.dao_factory import dao_factory
         self.dao = dao_factory()
@@ -31,3 +31,18 @@ class BaseTransformer:
 
         template = Template(template_content)
         return template.safe_substitute(template_data)
+
+    def retrieve(self):
+        raise NotImplementedError
+
+    def transform(self, data):
+        raise NotImplementedError
+
+    def run(self):
+        # get top image
+        # check if top image was already top image
+        # if yes try next top image until three tries
+        # If all already top images write a message with the first one to say it is again the winner. in a row.
+        entities = self.retrieve()
+        content = self.transform(entities)
+        self.save(content)

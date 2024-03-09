@@ -1,9 +1,8 @@
-import os
 from typing import List
 
 from utils.datetime_helper import today_as_start_and_enddate_str
 
-from transformers import BaseTransformer
+from transformers import BaseContentTransformer
 
 from collectors.models import ResearchPaper
 from transformers.models import Content
@@ -11,7 +10,7 @@ from transformers.models import Content
 from services import OpenAIService, PromptService
 
 
-class DailyArxivPaperTransformer(BaseTransformer):
+class DailyArxivPaperTransformer(BaseContentTransformer):
     def __init__(self, creator_name='DailyArxivPaper', template_file_name='daily_arxiv_paper_template.html', language='de'):
         from dao.dao_factory import dao_factory
         self.dao = dao_factory()
@@ -41,7 +40,9 @@ class DailyArxivPaperTransformer(BaseTransformer):
             if self.language != paper_language:
                 system_msg += self.ps.create_translate_system_prompt(language=self.language)
 
-            abstract = self.oais.gpt_35_response(system_msg, paper.abstract)
+            self.oais.switch_text_model('gpt-3.5-turbo')
+            abstract = self.oais.chat_response(system_msg, paper.abstract)
+            self.oais.switch_to_default_text_model()
 
             template_data = {
                 'title': paper.title,
