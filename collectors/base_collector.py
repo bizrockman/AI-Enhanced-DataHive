@@ -56,5 +56,8 @@ class BaseCollector:
 
     def run(self):
         if self.is_due():
-            data = self.retrieve()
-            self.save(data=data)
+            try:
+                data = self.retrieve()
+                self.save(data=data)
+            except Exception as e:
+                print(f"Error in {self.creator_name}: {e}")
