@@ -29,10 +29,13 @@ Designed initially for AI news, the framework's flexibility through additional c
 ## Transformer Implementations
 
 - **TopDailyImage**: Transforms CivitAI images into a daily top image Content piece.
+- **DailyArxivPaper**: Transforms Daily Arxiv paper into a daily research paper Content piece.
+- **DailyTrendingGitHub**: Transforms Daily Github projects into a daily github Content piece.
 
 ## Publisher Implementations
 
 - **Telegram**: A loader transforms content pieces into telegram messages that are published into a group by a bot.
+  - Daily Images, Daily Papers, Daily Trending Github Projects 
 
 ## Prerequisites
 Python 3.10 or higher\
