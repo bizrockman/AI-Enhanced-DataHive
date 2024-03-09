@@ -80,6 +80,7 @@ class GithubCollector(BaseCollector):
 
                 project = GithubProject(
                     creator=self.creator_name,
+                    rank=item['rank'],
                     username=item['username'],
                     name=item['repositoryName'],
                     url=item['url'],

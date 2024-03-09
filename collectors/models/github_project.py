@@ -7,6 +7,7 @@ from pydantic import HttpUrl, Field, field_validator
 class GithubProject(ContentBaseModel):
     VALID_PERIODICITY: ClassVar[list[str]] = ['daily', 'weekly', 'monthly']
 
+    rank: int
     username: str = Field(..., max_length=255)
     name: str = Field(..., max_length=255)
     url: HttpUrl
