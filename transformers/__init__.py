@@ -1,1 +1,1 @@
-from .base_transformer import BaseTransformer
+from .base_content_transformer import BaseContentTransformer
