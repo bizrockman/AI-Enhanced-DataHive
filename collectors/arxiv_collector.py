@@ -46,10 +46,10 @@ class ArxivCollector(BaseCollector):
 
     def retrieve(self) -> List[ResearchPaper]:
         entries = ah.do_today_search(self.arxiv_category, self.limit)
-        papers = self.convert_to_research_paper_entity(entries)
+        papers = self.convert_to_research_paper_entities(entries)
         return papers
 
-    def convert_to_research_paper_entity(self, data) -> List[ResearchPaper]:
+    def convert_to_research_paper_entities(self, data) -> List[ResearchPaper]:
         result = []
         if data:
             for item in data:
