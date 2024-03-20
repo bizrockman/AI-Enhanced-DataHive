@@ -3,7 +3,7 @@ import time
 
 from dotenv import load_dotenv
 
-from collectors import CivitaiCollector
+from ai_datahive.collectors import CivitaiCollector
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
