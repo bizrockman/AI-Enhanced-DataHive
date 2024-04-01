@@ -28,12 +28,12 @@ def today_as_start_and_enddate_str(pattern='%Y-%m-%d'):
     return start_date_str, end_date_str
 
 
-def is_due(content_type: Type[DataHiveBaseModel], creator_name, run_interval):
+def is_due(content_type: Type[DataHiveBaseModel], creator, run_interval):
     if content_type is None:
         raise NotImplementedError('If no content_type is defined, you have to implement this method.')
 
     dao = dao_factory()
-    latest_entity_date = dao.get_latest_entity_date(content_type, creator_name)
+    latest_entity_date = dao.get_latest_entity_date(content_type, creator)
 
     if latest_entity_date is None:
         return True

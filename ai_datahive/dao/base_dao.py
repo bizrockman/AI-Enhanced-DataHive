@@ -21,8 +21,8 @@ class BaseDAO:
     def delete(self, entity: DataHiveBaseModel, id=None):
         raise NotImplementedError
 
-    def get_latest_entity_date(self, entity: Type[DataHiveBaseModel], creator_name: str) -> Union[datetime, None]:
-        entity = self.read(entity, filters=[['creator', creator_name]], order_by='created_at', order_dir='desc',
+    def get_latest_entity_date(self, entity: Type[DataHiveBaseModel], creator: str) -> Union[datetime, None]:
+        entity = self.read(entity, filters=[['creator', creator]], order_by='created_at', order_dir='desc',
                            limit=1)
 
         if entity:

@@ -44,7 +44,7 @@ class BaseContentTransformer:
         raise NotImplementedError
 
     def run(self):
-        is_due = datetime_helper.is_due(content_type=Content, creator_name=self.creator_name,
+        is_due = datetime_helper.is_due(content_type=Content, creator=self.creator,
                                         run_interval=self.run_interval)
         if is_due:
             # get top image
