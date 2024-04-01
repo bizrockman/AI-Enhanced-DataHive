@@ -1,12 +1,14 @@
+from typing import Optional
 from ai_datahive.models.base_model import DataHiveBaseModel
 
-from pydantic import field_validator
-
+from pydantic import HttpUrl, field_validator
 
 class ContentBaseModel(DataHiveBaseModel):
     creator: str
-    source: str
+    source_name: str
+    source_url: Optional[HttpUrl] = None
     version: int = 0
+    lang: str = 'en' # ISO 639-1
     tags: str
 
     @field_validator('creator', mode='after')

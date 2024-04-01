@@ -1,4 +1,5 @@
 import os
+import inspect
 from typing import Union, Collection
 
 from string import Template
@@ -13,7 +14,8 @@ class BaseContentTransformer:
         self.dao = dao_factory()
         self.language = language
         self.creator_name = creator_name
-        self.template_path = os.path.join(os.path.dirname(__file__), 'templates', template_file_name)
+        caller_file = inspect.getfile(self.__class__)
+        self.template_path = os.path.join(caller_file, 'templates', template_file_name)
 
     def save(self, content: Union[Content, Collection[Content]]):
         if isinstance(content, Collection):
@@ -45,4 +47,4 @@ class BaseContentTransformer:
         # If all already top images write a message with the first one to say it is again the winner. in a row.
         entities = self.retrieve()
         content = self.transform(entities)
-        self.save(content)
+        return self.save(content)

@@ -7,7 +7,6 @@ from datetime import datetime
 class Content(ContentBaseModel):
     title: Optional[str] = None
     content: Optional[str] = None
-    language: str # ISO 639-1
     media_url: Optional[HttpUrl] = None
     media_type: Optional[str] = None
     media_created_at: Optional[Union[datetime, str]] = None
