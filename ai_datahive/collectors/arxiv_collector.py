@@ -79,8 +79,8 @@ class ArxivCollector(BaseCollector):
                         tags=self.tags,
                         paper_submitted_at=now,
                         paper_url=item['link'],
-                        # TODO rework function call
-                        reference_url=ah.search_day_submissions(self.arxiv_category, os.getenv('ARXIV_RSS_LINK'))
+                        # TODO rework function call to get the RSS LINK
+                        source_url=ah.search_day_submissions(self.arxiv_category, os.getenv('ARXIV_RSS_LINK'))
                     )
                     result.append(paper)
         return result
