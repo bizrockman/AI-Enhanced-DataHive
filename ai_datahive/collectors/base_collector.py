@@ -4,6 +4,7 @@ from collections.abc import Collection
 from datetime import datetime, timezone, timedelta
 
 from ai_datahive.models import ContentBaseModel
+from ai_datahive.utils import datetime_helper
 
 
 class BaseCollector:
@@ -40,28 +41,10 @@ class BaseCollector:
         else:
             return self.dao.create(data)
 
-    def is_due(self):
-        latest_entity_date = self.get_latest_message_date()
-        print(latest_entity_date)
-
-        if latest_entity_date is None:
-            return True
-
-        latest_entity_date = latest_entity_date.astimezone(timezone.utc)
-        now = datetime.now(timezone.utc)
-        time_diff = now - latest_entity_date
-
-        if time_diff < self.run_interval:
-            total_seconds = time_diff.total_seconds()
-            hours = int(total_seconds // 3600)
-            minutes = int((total_seconds % 3600) // 60)
-            print(f"Weniger als 24 Stunden seit der letzten Nachricht vergangen: "
-                  f"Vergangen bisher: {hours:02d}:{minutes:02d}")
-            return False
-        return True
-
     def run(self):
-        if self.is_due():
+        is_due = datetime_helper.is_due(content_type=self.content_type, creator_name=self.creator_name,
+                                        run_interval=self.run_interval)
+        if is_due:
             try:
                 data = self.retrieve()
                 self.save(data=data)
