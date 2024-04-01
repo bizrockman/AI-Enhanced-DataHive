@@ -3,6 +3,7 @@ from ai_datahive.models.base_model import DataHiveBaseModel
 
 from pydantic import HttpUrl, field_validator
 
+
 class ContentBaseModel(DataHiveBaseModel):
     creator: str
     source_name: str
