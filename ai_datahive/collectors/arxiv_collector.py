@@ -74,7 +74,7 @@ class ArxivCollector(BaseCollector):
                         source_id=item['guid'],
                         authors=item['authors'],
                         license=item['rights'],
-                        source='Arxiv',
+                        source_name='Arxiv',
                         creator=self.creator_name,
                         tags=self.tags,
                         paper_submitted_at=now,
