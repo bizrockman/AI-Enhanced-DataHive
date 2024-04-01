@@ -23,4 +23,4 @@ version INTEGER DEFAULT 0,
 lang VARCHAR(2) DEFAULT 'en',
 tags TEXT,
 created_at timestamp with time zone null default (now() at time zone 'utc'::text),
-updated_at timestamp with time zone null default (now() at time zone 'utc'::text),
+updated_at timestamp with time zone null default (now() at time zone 'utc'::text)
