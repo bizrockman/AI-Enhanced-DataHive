@@ -6,9 +6,7 @@ import base64
 
 
 class Media(ContentBaseModel):
-    VALID_MEDIA_TYPES: ClassVar[list[str]] = ['image', 'video', 'model', 'text', 'paper', 'news', 'prompt',
-                                              'website', 'pdf']
-
+    VALID_MEDIA_TYPES: ClassVar[list[str]] = ['image', 'video', 'audio', 'text', 'pdf']
     media_url: Optional[HttpUrl] = None
     media_b64_content: Optional[str] = None
     media_type: str
@@ -19,9 +17,7 @@ class Media(ContentBaseModel):
     prompt: Optional[str] = None
     model: Optional[str] = None
     author: Optional[str] = None
-    source: Optional[str] = None
-    reference_url: Optional[HttpUrl] = None
-    media_reference_id: Optional[Union['Media', str]] = None  # TODO To low leve, should refernce the media object
+    # media_reference_id: Optional[Union['Media', str]] = None  # TODO To low level, should reference another media object
     media_created_at: Union[datetime, str]
 
     class Config:

@@ -96,7 +96,8 @@ class CivitaiCollector(BaseCollector):
                                                                      item['meta'].get('Model') is not None else None,
                     author=item['username'],
                     tags=self.tags,
-                    source='Civitai',
+                    source_name='Civitai',
+                    source_url=self.civitai_url,
                     media_created_at=item['createdAt']
                 )
                 result.append(media)
