@@ -23,7 +23,7 @@ class BaseDAO:
 
     def get_latest_entity_date(self, entity: Type[DataHiveBaseModel], creator_name: str) -> Union[datetime, None]:
         entity = self.read(entity, filters=[['creator', creator_name]], order_by='created_at', order_dir='desc',
-                             limit=1)
+                           limit=1)
 
         if entity:
             entity = entity[0]

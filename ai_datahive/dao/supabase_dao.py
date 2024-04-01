@@ -47,13 +47,13 @@ class SupabaseDAO(BaseDAO):
                     # Fallback, falls das Format ungültig ist
                     print(f"Fehler: Filterformat ist ungültig: '{query}'")
 
+            # Order By und Richtung anwenden, wenn spezifiziert
+        if order_by is not None:
+            result = result.order(order_by, desc=(order_dir == 'desc'))
+
             # Limit anwenden, wenn spezifiziert
         if limit is not None:
             result = result.limit(limit)
-
-            # Order By und Richtung anwenden, wenn spezifiziert
-        if order_by is not None:
-            result = result.order(order_by, desc=(order_dir == 'asc'))
 
         return [self._row_to_model_instance(row, entity) for row in result.execute().data]
 

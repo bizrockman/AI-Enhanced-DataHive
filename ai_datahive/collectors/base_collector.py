@@ -42,6 +42,8 @@ class BaseCollector:
 
     def is_due(self):
         latest_entity_date = self.get_latest_message_date()
+        print(latest_entity_date)
+
         if latest_entity_date is None:
             return True
 
