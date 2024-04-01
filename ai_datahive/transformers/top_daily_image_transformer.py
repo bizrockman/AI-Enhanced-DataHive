@@ -5,18 +5,22 @@ from string import Template
 from ai_datahive.utils.text_helper import escape_html
 from ai_datahive.utils.datetime_helper import today_as_start_and_enddate_str
 
+from ai_datahive.transformers import BaseContentTransformer
 from ai_datahive.collectors.models import Media
 from ai_datahive.transformers.models import Content
 
 
-class TopDailyImageTransformer:
-    def __init__(self, template_file_name='top_daily_image_template.html', language='de'):
+class TopDailyImageTransformer(BaseContentTransformer):
+    def __init__(self, creator='TopDailyImageTransformer', template_file_name='top_daily_image_template.html',
+                 language='de'):
         from ai_datahive.dao.dao_factory import dao_factory
-        self.creator = 'TopDailyImage'
         self.dao = dao_factory()
 
+        self.creator = creator
         self.language = language
         self.template_path = os.path.join(os.path.dirname(__file__), 'templates', template_file_name)
+
+        super().__init__(creator=creator, template_file_name=template_file_name, language=language)
 
     def retrieve(self):
         start_date_str, end_date_str = today_as_start_and_enddate_str()
@@ -28,52 +32,31 @@ class TopDailyImageTransformer:
     def transform(self, topdailyimage: Media) -> Content:
         if topdailyimage:
             template_data = {
-                'creator': topdailyimage.source,
+                'creator': self.creator,
                 'media_url': topdailyimage.media_url,
                 'likes': topdailyimage.likes,
                 'hearts': topdailyimage.hearts,
                 'prompt': topdailyimage.prompt,
                 'model': topdailyimage.model,
                 'author': topdailyimage.author,
-                'created_at': topdailyimage.media_created_at,
+                'created_at': topdailyimage.media_created_at.strftime('%d.%m.%Y %H:%M'),
             }
             str_content = self.create_content(template_data)
 
             content = Content(
                 creator=self.creator,
                 tags=topdailyimage.tags,
-                title=f'Das Topbild des Tages von {topdailyimage.source}:',
+                title=f'Das Topbild des Tages von {topdailyimage.source_name}:',
                 content=str_content,
                 media_url=topdailyimage.media_url,
                 media_type='image',
                 media_created_at=topdailyimage.media_created_at,
-                source=topdailyimage.source,
+                source_name=topdailyimage.source_name,
+                source_url=topdailyimage.source_url,
                 language=self.language
             )
 
             return content
-
-    def save(self, content: Content):
-        result = self.dao.create(content)
-        return result
-
-    def create_content(self, template_data):
-        template_data = {k: escape_html(v) for k, v in template_data.items()}
-
-        with open(self.template_path, 'r', encoding='utf-8') as file:
-            template_content = file.read()
-
-        template = Template(template_content)
-        return template.safe_substitute(template_data)
-
-    def run(self):
-        # get top image
-        # check if top image was already top image
-        # if yes try next top image until three tries
-        # If all already top images write a message with the first one to say it is again the winner. in a row.
-        media = self.retrieve()
-        content = self.transform(media)
-        self.save(content)
 
 
 def main():
