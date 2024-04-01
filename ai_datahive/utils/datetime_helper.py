@@ -44,11 +44,6 @@ def is_due(content_type: Type[DataHiveBaseModel], creator_name, run_interval):
 
     if time_diff < run_interval:
         total_seconds = time_diff.total_seconds()
-        print(latest_entity_date)
-        print(now)
-        print(time_diff)
-        print(run_interval)
-        print(total_seconds)
         hours = int(total_seconds // 3600)
         minutes = int((total_seconds % 3600) // 60)
         print(f"Weniger als 24 Stunden seit der letzten Nachricht vergangen: "
