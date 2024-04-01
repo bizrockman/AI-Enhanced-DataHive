@@ -59,7 +59,7 @@ class DailyArxivPaperTransformer(BaseContentTransformer):
                 reference_url=paper.paper_url,
                 reference_type='paper',
                 reference_created_at=paper.created_at,
-                source=paper.source,
+                source_name=paper.source_name,
                 language=self.language,
                 creator=self.creator_name,
                 tags=paper.tags,
