@@ -67,15 +67,6 @@ class DailyArxivPaperTransformer(BaseContentTransformer):
             result.append(content)
         return result
 
-    def run(self):
-        # get top image
-        # check if top image was already top image
-        # if yes try next top image until three tries
-        # If all already top images write a message with the first one to say it is again the winner. in a row.
-        papers = self.retrieve()
-        content = self.transform(papers)
-        self.save(content)
-
 
 def main():
     from dotenv import load_dotenv
