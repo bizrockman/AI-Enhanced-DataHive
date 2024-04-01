@@ -10,30 +10,27 @@ from ai_datahive.utils.datetime_helper import today_as_start_and_enddate_str
 from ai_datahive.utils.text_helper import replace_numbers_with_emojis
 
 class DailyTrendingGithubProjectTransformer(BaseContentTransformer):
-    def __init__(self, creator_name='DailyTrendingGithubProjects',
+    def __init__(self, creator='DailyTrendingGithubProjectTransformer',
                  template_file_name='github_loader_trending_template.html', language='de'):
         from ai_datahive.dao.dao_factory import dao_factory
         self.dao = dao_factory()
 
         self.ts = AIBackedTranslationService()
 
-        super().__init__(creator_name=creator_name, template_file_name=template_file_name, language=language)
+        super().__init__(creator=creator, template_file_name=template_file_name, language=language)
 
     def retrieve(self) -> List[GithubProject]:
         start_date_str, end_date_str = today_as_start_and_enddate_str()
 
-        filters = [["creator", "GithubDailyTrendingRepos"], ['created_at', 'between', start_date_str, end_date_str]]
+        filters = [["creator", "GithubCollector"], ['created_at', 'between', start_date_str, end_date_str]]
         projects = self.dao.read(GithubProject, filters, limit=3, order_by='created_at')
         return projects
 
     def transform(self, projects: list[GithubProject]) -> List[Content]:
-        # TODO make a language system. Getting the language from Paper and Check language in this transformer
-        # TODO If different make a translation
-        # Hardcoded for now
-        project_language = 'en'
         result = []
 
         for project in projects:
+            project_language = project.lang
             if self.language != project_language:
                 translated_description = self.ts.translate(project.description, self.language)
                 project.description = translated_description
@@ -56,9 +53,10 @@ class DailyTrendingGithubProjectTransformer(BaseContentTransformer):
                 reference_url=project.url,
                 reference_type='github_project',
                 reference_created_at=project.created_at,
-                source=project.source,
+                source_name=project.source_name,
+                source_url=project.source_url,
                 language=self.language,
-                creator=self.creator_name,
+                creator=self.creator,
                 tags=project.tags,
             )
             result.append(content)
