@@ -13,5 +13,4 @@ class ResearchPaper(ContentBaseModel):
     paper_url: Optional[HttpUrl] = None
     code_url: Optional[HttpUrl] = None
     media_url: Optional[HttpUrl] = None
-    reference_url: Optional[HttpUrl] = None
     paper_submitted_at: Union[datetime, str]
