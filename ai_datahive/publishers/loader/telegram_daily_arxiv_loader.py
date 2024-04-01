@@ -13,13 +13,15 @@ class TelegramDailyArxivLoader(TelegramBaseLoader):
     def retrieve(self):
         start_date_str, end_date_str = today_as_start_and_enddate_str()
         filters = [
-            ["creator", "DailyArxivPaper"],
-            ["language", "de"],
+            ["creator", "Arxiv"],
+            ["lang", "de"],
             ["created_at", "between", start_date_str, end_date_str]
         ]
 
         paper = self.dao.read(Content, filters, limit=1)
-        return paper[0]
+        if len(paper) > 0:
+            return paper[0]
+        return None
 
 
 def main():
