@@ -9,7 +9,7 @@ from ai_datahive.services import OpenAIService, PromptService, AIBackedTranslati
 
 
 class TopDailyImageCritiqueTransformer(BaseContentTransformer):
-    def __init__(self, creator_name='DailyImageCritiqueJS', template_file_name='top_daily_image_critique_template.html',
+    def __init__(self, creator='DailyImageCritiqueJS', template_file_name='top_daily_image_critique_template.html',
                  language='de'):
         from ai_datahive.dao.dao_factory import dao_factory
         self.dao = dao_factory()
@@ -18,7 +18,7 @@ class TopDailyImageCritiqueTransformer(BaseContentTransformer):
         self.oais = OpenAIService()
         self.ts = AIBackedTranslationService()
 
-        super().__init__(creator_name=creator_name, template_file_name=template_file_name, language=language)
+        super().__init__(creator=creator, template_file_name=template_file_name, language=language)
 
     def retrieve(self) -> Media:
         start_date_str, end_date_str = today_as_start_and_enddate_str()
@@ -30,12 +30,13 @@ class TopDailyImageCritiqueTransformer(BaseContentTransformer):
     def transform(self, topdailyimage: Media) -> Content:
 
         if topdailyimage:
+            image_language = topdailyimage.lang
             system_prompt = self.ps.create_system_prompt_from_file('js_style_image_critique_prompt.txt')
 
             user_prompt = f"Prompt: {topdailyimage.prompt}\nartist: {topdailyimage.author}"
             critique = self.oais.vision_response(system_prompt=system_prompt, user_prompt=user_prompt,
                                                  image_url=topdailyimage.media_url)
-            if self.language != 'en':
+            if self.language != image_language:
                 critique = self.ts.translate(critique, self.language)
 
             template_data = {
@@ -47,15 +48,16 @@ class TopDailyImageCritiqueTransformer(BaseContentTransformer):
             str_content = self.create_content(template_data)
 
             content = Content(
-                creator=self.creator_name,
+                creator=self.creator,
                 tags=topdailyimage.tags+', critique, JS style',
                 title=f'Die Bildkritik mit Saltz',
                 content=str_content,
                 media_url=topdailyimage.media_url,
                 media_type='image',
                 media_created_at=topdailyimage.media_created_at,
-                source=topdailyimage.source,
-                language=self.language
+                source_name=topdailyimage.source_name,
+                source_url=topdailyimage.source_url,
+                lang=self.language
             )
             return content
 
