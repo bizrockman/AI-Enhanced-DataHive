@@ -13,7 +13,7 @@ class TelegramDailyArxivLoader(TelegramBaseLoader):
     def retrieve(self):
         start_date_str, end_date_str = today_as_start_and_enddate_str()
         filters = [
-            ["creator", "Arxiv"],
+            ["creator", "DailyArxivPaper"],
             ["lang", "de"],
             ["created_at", "between", start_date_str, end_date_str]
         ]
