@@ -18,7 +18,13 @@ class BaseContentTransformer:
         self.creator = creator
         self.run_interval = run_interval
         caller_file = inspect.getfile(self.__class__)
-        self.template_path = os.path.join(caller_file, 'templates', template_file_name)
+        template_file_path = os.path.join(caller_file, 'templates', template_file_name)
+        if os.path.exists(template_file_path):
+            self.template_path = os.path.join(caller_file, 'templates', template_file_name)
+        elif os.path.exists(os.path.join(os.path.dirname(__file__), 'templates', template_file_name)):
+            self.template_path = os.path.join(os.path.dirname(__file__), 'templates', template_file_name)
+        else:
+            self.template_path = os.path.join('templates', template_file_name)
 
     def save(self, content: Union[Content, Collection[Content]]):
         if isinstance(content, Collection):
