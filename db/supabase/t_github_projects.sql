@@ -1,5 +1,6 @@
 CREATE TABLE t_github_projects (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    rank INTEGER,
     username VARCHAR(255),
     name VARCHAR(255) NOT NULL,
     url VARCHAR(255) NOT NULL,
@@ -9,10 +10,13 @@ CREATE TABLE t_github_projects (
     forks INTEGER,
     new_stars INTEGER,
     contributors TEXT,
-    since VARCHAR(50) NOT NULL,
-    tags TEXT,
+    periodicity VARCHAR(50) NOT NULL,
     creator VARCHAR(255) NOT NULL,
+    source_name VARCHAR(255) NOT NULL,
+    source_url VARCHAR(255),
     version INTEGER DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
+    lang VARCHAR(2) DEFAULT 'en',
+    tags TEXT,
+    created_at timestamp with time zone null default (now() at time zone 'utc'::text),
+    updated_at timestamp with time zone null default (now() at time zone 'utc'::text)
 );

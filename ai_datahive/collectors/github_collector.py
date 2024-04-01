@@ -90,9 +90,10 @@ class GithubCollector(BaseCollector):
                     total_stars=item['totalStars'],
                     forks=item['forks'],
                     new_stars=item['starsSince'],
-                    since=item['since'],
+                    periodicity=item['since'],
                     tags=self.tags,
-                    source='GitHub Trending',
+                    source_name='GitHub Trends',
+                    source_url=self.github_url,
                     contributors=output
                 )
                 result.append(project)

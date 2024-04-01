@@ -16,7 +16,7 @@ class GithubProject(ContentBaseModel):
     total_stars: Optional[int] = None
     forks: Optional[int] = None
     new_stars: Optional[int] = None
-    since: str = Field(..., max_length=50)
+    periodicity: str = Field(..., max_length=50)
     contributors: Optional[str] = None
 
     class Config:
@@ -24,8 +24,8 @@ class GithubProject(ContentBaseModel):
             HttpUrl: lambda v: str(v)
         }
 
-    @field_validator('since')
-    def check_since(cls, v: str) -> str:
+    @field_validator('periodicity')
+    def check_periodicity(cls, v: str) -> str:
         if v not in cls.VALID_PERIODICITY:
             raise ValueError(f"since must be one of {cls.VALID_PERIODICITY}")
         return v
