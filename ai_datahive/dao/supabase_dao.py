@@ -132,6 +132,8 @@ class SupabaseDAO(BaseDAO):
         # TODO find a better way to handle pluralization
         if 'media' in table_name_snake_case:
             table_name_plural = 'media'
+        elif 'content' in table_name_snake_case:
+            table_name_plural = 'content'
         else:
             table_name_plural = p.plural_noun(table_name_snake_case)
 
@@ -168,24 +170,6 @@ class SupabaseDAO(BaseDAO):
                 query_filters.append(result)
 
         return query_filters
-
-    #def get_latest_data_date(self, creator_name: str, table_name: str):
-    #    # Get date from the latest message to the telegram table - using topic / reporter
-    #    #table_name = f't_{content_type}'
-    #    result = self.supabase_client.table(table_name) \
-    #        .select('created_at') \
-    #        .eq('creator', creator_name) \
-    #        .order('created_at', desc=True) \
-    #        .limit(1) \
-    #        .execute()
-
-    #    if result.data:
-            # Gehe davon aus, dass `created_at` das Datum beinhaltet
-    #        return datetime.fromisoformat(result.data[0]['created_at'])
-    #    else:
-    #        return datetime.now() - timedelta(weeks=1)
-
-    # Implementiere die restlichen Methoden entsprechend
 
 
 def main():
