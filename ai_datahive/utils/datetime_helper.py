@@ -18,7 +18,7 @@ def to_periodic_format(period):
         return 'all time'
 
 
-def today_as_start_and_enddate_str(pattern='%Y-%m-%d'):
+def today_as_start_and_enddate_str(pattern='%Y-%m-%d') -> (str, str):
     today = datetime.now().date()
     start_date = today
     end_date = today + timedelta(days=1)
@@ -26,6 +26,12 @@ def today_as_start_and_enddate_str(pattern='%Y-%m-%d'):
     end_date_str = end_date.strftime(pattern)
 
     return start_date_str, end_date_str
+
+
+def get_start_and_end_times_based_on_interval(run_interval: timedelta, pattern='%Y-%m-%d %H:%M:%S') -> (str, str):
+    end_time = datetime.now()
+    start_time = end_time - run_interval
+    return start_time.strftime(pattern), end_time.strftime(pattern)
 
 
 def is_due(content_type: Type[DataHiveBaseModel], creator, run_interval):
