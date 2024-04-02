@@ -6,8 +6,9 @@ from ai_datahive.transformers.models import Content
 
 from ai_datahive.services import AIBackedTranslationService
 
-from ai_datahive.utils.datetime_helper import today_as_start_and_enddate_str
+from ai_datahive.utils.datetime_helper import today_as_start_and_enddate_str, get_start_and_end_times_based_on_interval
 from ai_datahive.utils.text_helper import replace_numbers_with_emojis
+
 
 class DailyTrendingGithubProjectTransformer(BaseContentTransformer):
     def __init__(self, creator='DailyTrendingGithubProjectTransformer',
@@ -20,7 +21,8 @@ class DailyTrendingGithubProjectTransformer(BaseContentTransformer):
         super().__init__(creator=creator, template_file_name=template_file_name, language=language)
 
     def retrieve(self) -> List[GithubProject]:
-        start_date_str, end_date_str = today_as_start_and_enddate_str()
+        # start_date_str, end_date_str = today_as_start_and_enddate_str()
+        start_date_str, end_date_str = get_start_and_end_times_based_on_interval(self.run_interval)
 
         filters = [["creator", "GithubCollector"], ['created_at', 'between', start_date_str, end_date_str]]
         projects = self.dao.read(GithubProject, filters, limit=3, order_by='created_at')
@@ -55,7 +57,7 @@ class DailyTrendingGithubProjectTransformer(BaseContentTransformer):
                 reference_created_at=project.created_at,
                 source_name=project.source_name,
                 source_url=project.source_url,
-                language=self.language,
+                lang=self.language,
                 creator=self.creator,
                 tags=project.tags,
             )
