@@ -1,20 +1,22 @@
 from ai_datahive.transformers.models import Content
 
 from ai_datahive.publishers.loader import TelegramBaseLoader
-from ai_datahive.utils import datetime_helper
+from ai_datahive.utils.datetime_helper import get_start_and_end_times_based_on_interval, today_as_start_and_enddate_str
 
 
 class TelegramDailyArxivLoader(TelegramBaseLoader):
 
     def __init__(self, telegram_group_name, telegram_group_topic_id, creator='TelegramDailyArxivLoader', language='de'):
-        self.creator = creator
-        self.language = language
         super().__init__(creator, language, telegram_group_name, telegram_group_topic_id)
 
     def retrieve(self):
-        start_date_str, end_date_str = datetime_helper.today_as_start_and_enddate_str()
+        if self.run_interval:
+            start_date_str, end_date_str = get_start_and_end_times_based_on_interval(self.run_interval)
+        else:
+            start_date_str, end_date_str = today_as_start_and_enddate_str()
+
         filters = [
-            ["creator", "DailyArxivPaper"],
+            ["creator", "DailyArxivPaperTransformer"],
             ["lang", self.language],
             ["created_at", "between", start_date_str, end_date_str]  # TODO extract from run_interval
         ]

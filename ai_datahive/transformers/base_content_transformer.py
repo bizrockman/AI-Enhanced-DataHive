@@ -12,8 +12,8 @@ from ai_datahive.utils import datetime_helper
 
 class BaseContentTransformer:
     def __init__(self, creator, template_file_name, language, run_interval: timedelta = timedelta(days=1)):
-        from ai_datahive.dao.dao_factory import dao_factory
-        self.dao = dao_factory()
+        from ai_datahive.utils.dao_factory import get_dao
+        self.dao = get_dao()
         self.language = language
         self.creator = creator
         self.run_interval = run_interval

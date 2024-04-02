@@ -12,7 +12,7 @@ from telegram.ext import Application, ContextTypes, CallbackContext
 
 from ai_datahive.publishers.models import TelegramMessage, TelegramGroupTopic
 
-from ai_datahive.dao.dao_factory import dao_factory
+from ai_datahive.utils.dao_factory import get_dao
 from ai_datahive.dao import BaseDAO
 
 
@@ -168,7 +168,7 @@ def main():
     setup_logging()
     load_dotenv()
 
-    dao: BaseDAO = dao_factory()
+    dao: BaseDAO = get_dao()
     telegram_application: Application = create_telegram_application()
 
     (telegram_application.job_queue.run_repeating(process_and_send_new_messages,

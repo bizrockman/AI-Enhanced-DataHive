@@ -13,8 +13,6 @@ from ai_datahive.services import OpenAIService, PromptService
 class DailyArxivPaperTransformer(BaseContentTransformer):
     def __init__(self, creator='DailyArxivPaperTransformer', template_file_name='daily_arxiv_paper_template.html',
                  language='de'):
-        from ai_datahive.dao.dao_factory import dao_factory
-        self.dao = dao_factory()
 
         self.ps = PromptService()
         self.oais = OpenAIService()

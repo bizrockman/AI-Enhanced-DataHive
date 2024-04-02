@@ -6,15 +6,13 @@ from ai_datahive.transformers.models import Content
 
 from ai_datahive.services import AIBackedTranslationService
 
-from ai_datahive.utils.datetime_helper import today_as_start_and_enddate_str, get_start_and_end_times_based_on_interval
+from ai_datahive.utils.datetime_helper import get_start_and_end_times_based_on_interval
 from ai_datahive.utils.text_helper import replace_numbers_with_emojis
 
 
 class DailyTrendingGithubProjectTransformer(BaseContentTransformer):
     def __init__(self, creator='DailyTrendingGithubProjectTransformer',
                  template_file_name='github_loader_trending_template.html', language='de'):
-        from ai_datahive.dao.dao_factory import dao_factory
-        self.dao = dao_factory()
 
         self.ts = AIBackedTranslationService()
 

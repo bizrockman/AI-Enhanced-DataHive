@@ -1,8 +1,5 @@
 import os
 
-from string import Template
-
-from ai_datahive.utils.text_helper import escape_html
 from ai_datahive.utils.datetime_helper import today_as_start_and_enddate_str
 
 from ai_datahive.transformers import BaseContentTransformer
@@ -13,8 +10,6 @@ from ai_datahive.transformers.models import Content
 class TopDailyImageTransformer(BaseContentTransformer):
     def __init__(self, creator='TopDailyImageTransformer', template_file_name='top_daily_image_template.html',
                  language='de'):
-        from ai_datahive.dao.dao_factory import dao_factory
-        self.dao = dao_factory()
 
         self.creator = creator
         self.language = language

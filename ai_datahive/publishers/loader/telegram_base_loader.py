@@ -11,8 +11,8 @@ from ai_datahive.utils import datetime_helper
 class TelegramBaseLoader:
     def __init__(self, creator, language, telegram_group_name, telegram_group_topic_id,
                  run_interval: timedelta = timedelta(days=1)):
-        from ai_datahive.dao.dao_factory import dao_factory
-        self.dao = dao_factory()
+        from ai_datahive.utils.dao_factory import get_dao
+        self.dao = get_dao()
 
         tgr = self.dao.read(TelegramGroup, [["telegram_group_name", telegram_group_name]], limit=1)
         if not tgr:
@@ -74,7 +74,7 @@ class TelegramBaseLoader:
         result = self.dao.create(TelegramMessage(**message_data))
 
     def load(self):
-        is_due = datetime_helper.is_due(content_type=TelegramMessage, creator_name=self.creator,
+        is_due = datetime_helper.is_due(content_type=TelegramMessage, creator=self.creator,
                                         run_interval=self.run_interval)
         if is_due:
             content = self.retrieve()

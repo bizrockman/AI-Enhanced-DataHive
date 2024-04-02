@@ -11,8 +11,6 @@ from ai_datahive.services import OpenAIService, PromptService, AIBackedTranslati
 class TopDailyImageCritiqueTransformer(BaseContentTransformer):
     def __init__(self, creator='DailyImageCritiqueJS', template_file_name='top_daily_image_critique_template.html',
                  language='de'):
-        from ai_datahive.dao.dao_factory import dao_factory
-        self.dao = dao_factory()
 
         self.ps = PromptService()
         self.oais = OpenAIService()
