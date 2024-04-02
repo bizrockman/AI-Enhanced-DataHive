@@ -9,7 +9,7 @@ from ai_datahive.collectors.utils.zotero_helper import ZoteroHelper
 
 class ZoteroCollector(BaseCollector):
 
-    def __init__(self, collection_name, content_type='media', creator_name='ZoteroCollector', zotero_api_key=None,
+    def __init__(self, collection_name, content_type='media', creator='ZoteroCollector', zotero_api_key=None,
                  zotero_library_id=None, zotero_library_type='user', all_types=False, tags=None, limit=3):
 
         zotero_api_key = os.getenv('ZOTERO_API_KEY') if zotero_api_key is None else zotero_api_key
@@ -22,7 +22,7 @@ class ZoteroCollector(BaseCollector):
         self.content_type = content_type
         self.zotero_helper = ZoteroHelper(zotero_api_key, zotero_library_id, zotero_library_type)
 
-        super().__init__(creator_name=creator_name, content_type=content_type)
+        super().__init__(creator=creator, content_type=content_type)
 
     def build_tags(self, itemType, repository):
         tags = 'zotero, '
@@ -64,7 +64,7 @@ class ZoteroCollector(BaseCollector):
                     output_creators = ', '.join(full_names)
 
                 media = Media(
-                    creator=self.creator_name,
+                    creator=self.creator,
                     media_type='paper',
                     title=data['data'].get('title', ''),
                     description=data['data'].get('abstractNote', ''),

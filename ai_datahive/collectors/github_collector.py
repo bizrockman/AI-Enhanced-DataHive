@@ -17,8 +17,8 @@ class GithubCollector(BaseCollector):
     VALID_PERIODS = ['Day', 'Week', 'Month']
 
     #TODO if needed use more parameters, right now fixed to github trending repos
-    def __init__(self, creator_name='GithubCollector', period='Day', tags=None, limit=3):
-        self.creator_name = creator_name
+    def __init__(self, creator='GithubCollector', period='Day', tags=None, limit=3):
+        self.creator = creator
         self.limit = limit
         self.period = period
         self.media_type = 'github_project'
@@ -31,7 +31,7 @@ class GithubCollector(BaseCollector):
 
         self.validate_parameters(period)
 
-        super().__init__(creator_name=self.creator_name, content_type=GithubProject)
+        super().__init__(creator=self.creator, content_type=GithubProject)
 
     def validate_parameters(self, period):
         if period not in self.VALID_PERIODS:
@@ -79,14 +79,14 @@ class GithubCollector(BaseCollector):
                     output = ', '.join(contributors)
 
                 project = GithubProject(
-                    creator=self.creator_name,
+                    creator=self.creator,
                     rank=item['rank'],
                     username=item['username'],
                     name=item['repositoryName'],
                     url=item['url'],
                     description=item['description'],
                     program_language=item['language'],
-                    lang=item['language'],
+                    lang='en',  # TODO Determine language with AI based on the title and description
                     total_stars=item['totalStars'],
                     forks=item['forks'],
                     new_stars=item['starsSince'],
@@ -103,9 +103,9 @@ class GithubCollector(BaseCollector):
 def main():
     load_dotenv()
     github_collector = GithubCollector()
-    data = github_collector.retrieve()
-    result = github_collector.save(data)
-    print(result)
+    data = github_collector.run()
+    if data:
+        print(data)
 
 
 if __name__ == "__main__":

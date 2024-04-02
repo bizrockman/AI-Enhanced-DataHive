@@ -15,9 +15,9 @@ class CivitaiCollector(BaseCollector):
     VALID_NSFW_LEVELS = [None, 'Soft', 'Mature', 'X']
     VALID_SORTS = ['Most Reactions', 'Most Buzz', 'Most Comments', 'Most Collected', 'Oldest']
 
-    def __init__(self, creator_name='CivitaiCollector', media_type='image', period='Day', sort='Most Reactions',
+    def __init__(self, creator='CivitaiCollector', media_type='image', period='Day', sort='Most Reactions',
                  nsfw=None, tags=None, limit=1):
-        self.creator_name = creator_name
+        self.creator = creator
         if tags is None:
             self.tags = self.build_tags(media_type, period, sort, nsfw)
         else:
@@ -37,7 +37,7 @@ class CivitaiCollector(BaseCollector):
         base_url = os.getenv('CIVITAI_API_URL', '')
         self.civitai_url = self.build_url(base_url, media_type, sort, nsfw, period, limit)
 
-        super().__init__(creator_name=self.creator_name, content_type=Media)
+        super().__init__(creator=self.creator, content_type=Media)
 
     def build_tags(self, media_type, period, sort, nsfw):
         tags = 'civitai, '
@@ -86,7 +86,7 @@ class CivitaiCollector(BaseCollector):
         if data:
             for item in data['items']:
                 media = Media(
-                    creator=self.creator_name,
+                    creator=self.creator,
                     media_url=item['url'],
                     media_type=self.media_type,
                     likes=item['stats']['likeCount'],
@@ -107,12 +107,16 @@ class CivitaiCollector(BaseCollector):
 def main():
     load_dotenv()
 
-    civitai_image_loader = CivitaiCollector(creator_name='CivitAIDailyTopImage', media_type='image', period='Day',
+    civitai_image_loader = CivitaiCollector(creator='CivitAIDailyTopImage', media_type='image', period='Day',
                                             nsfw=None, limit=3)
-    civitai_image_loader.run()
-    civitai_hot_image_loader = CivitaiCollector(creator_name='CivitAIDailyTopHotImage', media_type='image',
+    data = civitai_image_loader.run()
+    if data:
+        print(data)
+    civitai_hot_image_loader = CivitaiCollector(creator='CivitAIDailyTopHotImage', media_type='image',
                                                 period='Day', nsfw='Mature', limit=3)
-    civitai_hot_image_loader.run()
+    data = civitai_hot_image_loader.run()
+    if data:
+        print(data)
 
 
 if __name__ == "__main__":

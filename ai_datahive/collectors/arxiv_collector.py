@@ -15,10 +15,10 @@ class ArxivCollector(BaseCollector):
 
     VALID_PERIODS = ['Day']
 
-    def __init__(self, creator_name='ArxivCollector', arxiv_category='cs.AI', period='Day', tags=None, limit=3):
+    def __init__(self, creator='ArxivCollector', arxiv_category='cs.AI', period='Day', tags=None, limit=3):
         self.validate_parameters(arxiv_category, period)
 
-        self.creator_name = creator_name
+        self.creator = creator
         self.limit = limit
         self.arxiv_category = arxiv_category
         self.period = period
@@ -28,7 +28,7 @@ class ArxivCollector(BaseCollector):
         else:
             self.tags = tags
 
-        super().__init__(creator_name=self.creator_name, content_type=ResearchPaper)
+        super().__init__(creator=self.creator, content_type=ResearchPaper)
 
     def validate_parameters(self, arxiv_category, period) -> None:
         if arxiv_category not in ah.ALL_CATEGORIES:
@@ -75,7 +75,7 @@ class ArxivCollector(BaseCollector):
                         authors=item['authors'],
                         license=item['rights'],
                         source_name='Arxiv',
-                        creator=self.creator_name,
+                        creator=self.creator,
                         tags=self.tags,
                         paper_submitted_at=now,
                         paper_url=item['link'],
@@ -90,11 +90,8 @@ def main():
     load_dotenv()
     arxiv_collector = ArxivCollector()
     data = arxiv_collector.run()
-    #result = arxiv_collector.save(data)
-    print(data)
-    #media = civitai_collector.convert_to_media(data)
-
-    #print(media)
+    if data:
+        print(data)
 
 
 if __name__ == "__main__":
