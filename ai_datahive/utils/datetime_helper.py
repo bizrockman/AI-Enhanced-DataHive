@@ -2,7 +2,6 @@ from typing import Type
 from datetime import datetime, timedelta, timezone
 
 from ai_datahive.models import DataHiveBaseModel
-from ai_datahive.dao.dao_factory import dao_factory
 
 
 def to_periodic_format(period):
@@ -35,10 +34,11 @@ def get_start_and_end_times_based_on_interval(run_interval: timedelta, pattern='
 
 
 def is_due(content_type: Type[DataHiveBaseModel], creator, run_interval):
+    from ai_datahive.utils.dao_factory import get_dao
     if content_type is None:
         raise NotImplementedError('If no content_type is defined, you have to implement this method.')
 
-    dao = dao_factory()
+    dao = get_dao()
     latest_entity_date = dao.get_latest_entity_date(content_type, creator)
 
     if latest_entity_date is None:
