@@ -86,7 +86,7 @@ class GithubCollector(BaseCollector):
                     url=item['url'],
                     description=item['description'],
                     program_language=item['language'],
-                    language=item['language'],
+                    lang=item['language'],
                     total_stars=item['totalStars'],
                     forks=item['forks'],
                     new_stars=item['starsSince'],
