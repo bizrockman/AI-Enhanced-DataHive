@@ -53,7 +53,7 @@ class TopDailyImageTransformer(BaseContentTransformer):
                 media_created_at=topdailyimage.media_created_at,
                 source_name=topdailyimage.source_name,
                 source_url=topdailyimage.source_url,
-                language=self.language
+                lang=self.language
             )
 
             return content
