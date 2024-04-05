@@ -32,8 +32,8 @@ class TelegramDailyTrendingGithubProjectsLoader(TelegramBaseLoader):
 def main():
     from dotenv import load_dotenv
     load_dotenv()
-    ARXIV_GROUP_TOPIC_ID = 20
-    loader = TelegramDailyTrendingGithubProjectsLoader('KI & Business', ARXIV_GROUP_TOPIC_ID)
+    PROJECTS_GROUP_TOPIC_ID = 20
+    loader = TelegramDailyTrendingGithubProjectsLoader('KI & Business', PROJECTS_GROUP_TOPIC_ID)
     loader.load()
 
 
