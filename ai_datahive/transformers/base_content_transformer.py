@@ -18,9 +18,10 @@ class BaseContentTransformer:
         self.creator = creator
         self.run_interval = run_interval
         caller_file = inspect.getfile(self.__class__)
-        template_file_path = os.path.join(caller_file, 'templates', template_file_name)
+        caller_dir = os.path.dirname(caller_file)
+        template_file_path = os.path.join(caller_dir, 'templates', template_file_name)
         if os.path.exists(template_file_path):
-            self.template_path = os.path.join(caller_file, 'templates', template_file_name)
+            self.template_path = template_file_path
         elif os.path.exists(os.path.join(os.path.dirname(__file__), 'templates', template_file_name)):
             self.template_path = os.path.join(os.path.dirname(__file__), 'templates', template_file_name)
         else:
