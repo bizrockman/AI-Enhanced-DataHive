@@ -12,19 +12,22 @@ from ai_datahive.collectors.models import Media
 class CivitaiCollector(BaseCollector):
     VALID_PERIODS = ['AllTime', 'Year', 'Month', 'Week', 'Day']
     VALID_MEDIA_TYPES = ['image', 'video', 'model']
-    VALID_NSFW_LEVELS = [None, 'Soft', 'Mature', 'X']
+    VALID_NSFW_LEVELS = ['None', 'Soft', 'Mature', 'X']
     VALID_SORTS = ['Most Reactions', 'Most Buzz', 'Most Comments', 'Most Collected', 'Oldest']
 
     def __init__(self, creator='CivitaiCollector', media_type='image', period='Day', sort='Most Reactions',
-                 nsfw=None, tags=None, limit=1):
+                 nsfw_level='None', tags=None, limit=10):
         self.creator = creator
+        self.nsfw_level = nsfw_level
         if tags is None:
-            self.tags = self.build_tags(media_type, period, sort, nsfw)
+            self.tags = self.build_tags(media_type, period, sort, self.nsfw_level)
         else:
             self.tags = tags
         self.limit = limit
 
-        self.validate_parameters(media_type, period, nsfw, sort)
+        if self.nsfw_level is None:
+            self.nsfw_level = 'None'
+        self.validate_parameters(media_type, period, self.nsfw_level, sort)
 
         # TODO Right now, there is no way to determine videos directly from Civitai API
         # START - Workaround as long as there is no way to get videos directly from Civitai
@@ -35,7 +38,7 @@ class CivitaiCollector(BaseCollector):
         # END - Workaround as long as there is no way to get videos directly from Civitai
 
         base_url = os.getenv('CIVITAI_API_URL', '')
-        self.civitai_url = self.build_url(base_url, media_type, sort, nsfw, period, limit)
+        self.civitai_url = self.build_url(base_url, media_type, sort, self.nsfw_level, period)
 
         super().__init__(creator=self.creator, content_type=Media)
 
@@ -61,11 +64,12 @@ class CivitaiCollector(BaseCollector):
         if sort not in self.VALID_SORTS:
             raise ValueError(f"sort must be one of {self.VALID_SORTS}")
 
-    def build_url(self, base_url, media_type, sort, nsfw, period, limit):
+    def build_url(self, base_url, media_type, sort, nsfw, period):
+        api_limit = 100  # Maximum limit for Civitai API
         path = f"{media_type}s"  # Append 's' to make it plural (image -> images, video -> videos, model -> models)
         params = {
             'nsfw': nsfw if nsfw is not None else 'None',
-            'limit': limit,
+            'limit': api_limit,
             'period': period,
             'sort': sort
         }
@@ -73,18 +77,34 @@ class CivitaiCollector(BaseCollector):
         return urljoin(base_url, path) + '?' + query_string
 
     def retrieve(self):
-        data = get_request_as_json(self.civitai_url)
-        if isinstance(data, dict):
-            media = self.convert_to_media(data)
-            return media
-        else:
-            # Fehlerbehandlung
-            print(f"Es gab einen Fehler bei der Anfrage: {data}")
+        exit_count = 3
+        current_page = self.civitai_url
+        while exit_count > 0:
+            data = get_request_as_json(current_page)
+            if isinstance(data, dict):
+                item_list = []
+                for item in data['items']:
+                    if item['nsfwLevel'] == self.nsfw_level:
+                        item_list.append(item)
+                if len(item_list) >= self.limit:
+                    print('Iam out')
+                    media = self.convert_to_media(item_list[:self.limit])
+                    return media
+                exit_count -= 1
+                if data.get('metadata') and data.get('metadata').get('nextPage'):
+                    current_page = data['metadata']['nextPage']
+                else:
+                    break
+            else:
+                # Fehlerbehandlung
+                print(f"Es gab einen Fehler bei der Anfrage: {data}")
+                return None
 
     def convert_to_media(self, data):
         result = []
         if data:
-            for item in data['items']:
+            print(data)
+            for item in data:
                 media = Media(
                     creator=self.creator,
                     media_url=item['url'],
