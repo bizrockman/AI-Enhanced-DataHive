@@ -50,7 +50,7 @@ class DailyArxivPaperTransformer(BaseContentTransformer):
             str_content = self.create_content(template_data)
 
             content = Content(
-                title=paper.title,
+                title='Neues aus der Forschung',
                 content=str_content,
                 reference_url=paper.paper_url,
                 reference_type='paper',
