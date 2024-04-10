@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from ai_datahive.collectors import BaseCollector
 
 from ai_datahive.collectors.utils.allowed_github_parameter import AllowedDateRanges
-from ai_datahive.collectors.utils.scraping_helper import get_request
+from ai_datahive.utils.scraping_helper import get_request
 from ai_datahive.collectors.utils.github_helper import filter_articles, make_soup, scraping_repositories
 
 from ai_datahive.collectors.models import GithubProject

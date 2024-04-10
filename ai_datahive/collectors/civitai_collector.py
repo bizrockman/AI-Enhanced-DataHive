@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from urllib.parse import urlencode, urljoin
 
 from ai_datahive.collectors import BaseCollector
-from ai_datahive.collectors.utils.scraping_helper import get_request_as_json
+from ai_datahive.utils.scraping_helper import get_request_as_json
 from ai_datahive.utils.datetime_helper import to_periodic_format
 
 from ai_datahive.collectors.models import Media
