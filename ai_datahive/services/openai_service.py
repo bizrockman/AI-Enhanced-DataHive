@@ -6,10 +6,10 @@ from ai_datahive.services import BaseLLMService, BaseAIVisionService
 
 class OpenAIService(BaseLLMService, BaseAIVisionService):
 
-    ALLOWED_TEXT_MODELS = ['gpt-4-1106-preview', 'gpt-3.5-turbo']
-    ALLOWED_VISION_MODELS = ['gpt-4-vision-preview']
+    ALLOWED_TEXT_MODELS = ['gpt-4-turbo', 'gpt-3.5-turbo', ]
+    ALLOWED_VISION_MODELS = ['gpt-4-vision-preview', 'gpt-4-turbo']
 
-    def __init__(self, openai_key=None, text_model='gpt-4-1106-preview', vision_model='gpt-4-vision-preview'):
+    def __init__(self, openai_key=None, text_model='gpt-4-turbo', vision_model='gpt-4-turbo'):
         openai_key = openai_key or os.getenv('OPENAI_API_KEY')
         self._openai_client = openai.OpenAI(api_key=openai_key)
         self.text_model = text_model
@@ -19,7 +19,7 @@ class OpenAIService(BaseLLMService, BaseAIVisionService):
         self.text_model = model_name
 
     def switch_to_default_text_model(self):
-        self.text_model = 'gpt-4-1106-preview'
+        self.text_model = 'gpt-4-turbo'
 
     def switch_vision_model(self, vision_model_name):
         self.vision_model = vision_model_name
