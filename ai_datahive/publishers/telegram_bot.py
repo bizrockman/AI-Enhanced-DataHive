@@ -7,6 +7,8 @@ from io import BytesIO
 from datetime import datetime
 from dotenv import load_dotenv
 
+from PIL import Image
+
 from telegram import Update
 from telegram.ext import Application, ContextTypes, CallbackContext
 
@@ -99,6 +101,8 @@ async def send_message(dao: BaseDAO, context: CallbackContext, chat_id: str, mes
         send_method = media_methods[message.media_type]
         media_args = {'caption': caption} if content else {}
         media_args.update(base_args)
+        print(message)
+        print()
         await send_method(photo=media if message.media_type == 'image' else media, **media_args)
         if rest_content:
             for part in split_content(rest_content, max_message_length):
@@ -148,13 +152,47 @@ def get_message_thread_id_by_topic_name(dao: BaseDAO, telegram_group_topic_fk: s
 async def prepare_media(message: TelegramMessage):
     media_content = message.media_content
     media_url = message.media_url
+    media_type = message.media_type
 
     if media_content:
-        return BytesIO(base64.b64decode(media_content))
+        image_bytes = base64.b64decode(media_content)
     elif media_url:
         response = requests.get(media_url)
-        return BytesIO(response.content)
-    return None
+        image_bytes = response.content
+    else:
+        return None
+
+    if media_type == 'image':
+        return await process_image(image_bytes)
+    else:
+        return BytesIO(image_bytes)
+
+
+async def process_image(image_bytes):
+    image_stream = BytesIO(image_bytes)
+    image = Image.open(image_stream)
+    image_stream.seek(0, 2)  # Gehe ans Ende des Streams, um die Größe zu messen
+    original_size = image_stream.tell()
+    print(f"Original size: {original_size} bytes")
+
+    if original_size > 10 * 1024 * 1024:
+        scale_percent = 0.9
+        while image_stream.tell() > 10 * 1024 * 1024:
+            image_stream.seek(0)
+            new_width = int(image.width * scale_percent)
+            new_height = int(image.height * scale_percent)
+            image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            image_stream = BytesIO()
+            if image.mode == 'RGBA':
+                image.save(image_stream, format='PNG', quality=85)
+            else:
+                image.save(image_stream, format='JPEG', quality=85)
+            image_stream.seek(0, 2)  # Gehe ans Ende, um die neue Größe zu messen
+            print(f"Resized size: {image_stream.tell()} bytes")
+            scale_percent -= 0.1
+
+    image_stream.seek(0)
+    return image_stream
 
 
 def update_message_status(dao: BaseDAO, message: TelegramMessage):
