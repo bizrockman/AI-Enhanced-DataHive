@@ -1,5 +1,6 @@
 import os
 import inspect
+import logging
 from typing import Union, Collection, List
 
 from datetime import timedelta
@@ -60,4 +61,5 @@ class BaseContentTransformer:
             # If all already top images write a message with the first one to say it is again the winner. in a row.
             entities = self.retrieve()
             content = self.transform(entities)
-            return self.save(content)
+            if content is not None:
+                return self.save(content)

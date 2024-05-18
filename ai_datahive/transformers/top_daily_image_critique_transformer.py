@@ -39,6 +39,9 @@ class TopDailyImageCritiqueTransformer(BaseContentTransformer):
                 critique = self.oais.vision_response(system_prompt=system_prompt, user_prompt=user_prompt,
                                                      image_url=topdailyimage.media_url)
                 print(critique)
+                if critique is None:
+                    continue
+
                 if "I'm sorry" in critique and "can't" in critique:
                     print(f'I could not get the GPT-4V critique for the image: Image URL {topdailyimage.media_url}')
                     continue
