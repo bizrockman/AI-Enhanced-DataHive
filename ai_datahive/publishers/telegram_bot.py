@@ -57,8 +57,8 @@ async def process_and_send_new_messages(context: CallbackContext):
 
     if new_messages:
         for message in new_messages:
-            await send_message(dao, context, chat_id, message)
-            update_message_status(dao, message)
+            status = await send_message(dao, context, chat_id, message)
+            update_message_status(dao, message, status)
 
 
 async def send_message(dao: BaseDAO, context: CallbackContext, chat_id: str, message: TelegramMessage):
@@ -85,37 +85,43 @@ async def send_message(dao: BaseDAO, context: CallbackContext, chat_id: str, mes
     base_args = {'chat_id': chat_id, 'message_thread_id': message_thread_id, 'parse_mode': parse_mode}
 
     message_object = None
-    if message.media_type in media_methods and media:
-        if content:
-            if len(content) > max_caption_length:
-                caption = content[:max_caption_length]
-                rest_content = content[max_caption_length:]
+    try:
+        if message.media_type in media_methods and media:
+            if content:
+                if len(content) > max_caption_length:
+                    caption = content[:max_caption_length]
+                    rest_content = content[max_caption_length:]
+                else:
+                    caption = content
+                    rest_content = None
             else:
-                caption = content
+                caption = None
                 rest_content = None
-        else:
-            caption = None
-            rest_content = None
 
-        # Ergänzen der spezifischen Argumente für Medientypen
-        send_method = media_methods[message.media_type]
-        media_args = {'caption': caption} if content else {}
-        media_args.update(base_args)
-        print(message)
-        print()
-        await send_method(photo=media if message.media_type == 'image' else media, **media_args)
-        if rest_content:
-            for part in split_content(rest_content, max_message_length):
+            # Ergänzen der spezifischen Argumente für Medientypen
+            send_method = media_methods[message.media_type]
+            media_args = {'caption': caption} if content else {}
+            media_args.update(base_args)
+            print(message)
+            print()
+
+            await send_method(photo=media if message.media_type == 'image' else media, **media_args)
+            if rest_content:
+                for part in split_content(rest_content, max_message_length):
+                    await context.bot.send_message(text=part, **base_args)
+
+        elif content:
+            # Senden einer Textnachricht, falls kein Medieninhalt vorhanden oder erforderlich ist
+            for part in split_content(content, max_message_length):
                 await context.bot.send_message(text=part, **base_args)
-    elif content:
-        # Senden einer Textnachricht, falls kein Medieninhalt vorhanden oder erforderlich ist
-        for part in split_content(content, max_message_length):
-            await context.bot.send_message(text=part, **base_args)
-    else:
-        # Für den Fall, dass weder Inhalt noch Medien vorhanden sind (kann erweitert werden, falls nötig)
-        print("Kein Inhalt oder Medien zum Senden vorhanden.")
+        else:
+            # Für den Fall, dass weder Inhalt noch Medien vorhanden sind (kann erweitert werden, falls nötig)
+            print("Kein Inhalt oder Medien zum Senden vorhanden.")
+    except Exception as e:
+        print(f"Error sending message: {e}")
+        return 'error'
 
-
+    return 'sent'
 
     # TODO make it cleaner
     #message_object = None
@@ -195,10 +201,10 @@ async def process_image(image_bytes):
     return image_stream
 
 
-def update_message_status(dao: BaseDAO, message: TelegramMessage):
+def update_message_status(dao: BaseDAO, message: TelegramMessage, status):
     now = datetime.utcnow()
     message.sent_at = now.isoformat()
-    message.status = 'sent'
+    message.status = status
     dao.update(message)
 
 
